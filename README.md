@@ -112,7 +112,7 @@ Example movie in a response:
    DB_USERNAME=postgres
    ```
 
-3. Create the tables and the sample data. If the `movie_night` database does not exist yet, `migrate` offers to create it:
+3. Create an empty database called `movie_night` (in pgAdmin: right-click **Databases → Create → Database**). Then create the tables and the sample data:
 
    ```sh
    php artisan migrate
