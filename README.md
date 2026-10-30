@@ -1,58 +1,182 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Movie Night API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A REST API built with **Laravel 13** and **PostgreSQL** for the Information System Architecture midterm.
 
-## About Laravel
+Movie Night is a clean-content movie catalog for family and friend movie nights. Each movie has content flags for **nudity**, **violence** and **language** (`none`, `mild`, `moderate` or `severe`), plus optional **clean edit** info for movies that have a trimmed or muted version. Users can filter the catalog to family-clean movies, mark movies as watched, and rate and review them.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+It is a Laravel rebuild of my earlier Java Spring project, [Movie-Night](https://github.com/ahmad-foad/Movie-Night).
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## What it uses from the course
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+| Week | Topic | Where it is used |
+| --- | --- | --- |
+| 1 | API-only Laravel, `routes/api.php`, JSON errors | `bootstrap/app.php`, `routes/api.php` |
+| 2 | Controllers, Form Requests, API Resources | `app/Http/Controllers`, `app/Http/Requests`, `app/Http/Resources` |
+| 3 | Migrations, models, seeders, route model binding | `database/migrations`, `app/Models`, `database/seeders` |
+| 4 | `PATCH` partial updates, `DELETE` with 204 | `update` and `destroy` methods |
 
-## Learning Laravel
+Added for this project:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- **PostgreSQL** instead of SQLite.
+- **Four connected tables** using `hasMany` and `belongsTo` relationships.
+- **Filters** on the movie list: `?genre=` and `?clean=true`.
+- **The family-clean rule**: a movie is family clean when all three flags are `none` or `mild`, or when a clean edit is available. It lives in `Movie::isFamilyClean()` and the `familyClean()` query scope.
+- **Average rating and review count** on each movie, using `withAvg` and `withCount` so the list runs in one query.
+- **Swagger docs** generated automatically by [Scramble](https://scramble.dedoc.co) from the routes, Form Requests and Resources.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Database
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+```
+users                movies                           watches                   reviews
+-----                ------                           -------                   -------
+id                   id                               id                        id
+username  (unique)   title                            user_id  FK -> users      user_id  FK -> users
+email     (unique)   genre                            movie_id FK -> movies     movie_id FK -> movies
+password  (hashed)   release_year                     watched_at                rating   (1-5)
+timestamps           nudity_level     (none..severe)  timestamps                comment  (nullable)
+                     violence_level   (none..severe)  UNIQUE(user_id,movie_id)  timestamps
+                     language_level   (none..severe)
+                     has_clean_edit   (true/false)
+                     clean_edit_notes (nullable)
+                     timestamps
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Deleting a movie or a user also deletes its watches and reviews.
 
-## Contributing
+## Endpoints
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+All paths start with `/api`. Send `Accept: application/json` with every request.
 
-## Code of Conduct
+| Method | Path | Result |
+| --- | --- | --- |
+| GET | `/hello` | 200, check that the API is running |
+| GET | `/users` | 200, all users |
+| GET | `/users/{user}` | 200, user with watch history; 404 if not found |
+| POST | `/users` | 201, user created; 422 on invalid input |
+| GET | `/movies` | 200, all movies; supports `?genre=` and `?clean=true` |
+| GET | `/movies/{movie}` | 200, movie with average rating and reviews; 404 if not found |
+| POST | `/movies` | 201 / 422 |
+| PATCH | `/movies/{movie}` | 200, partial update / 422 |
+| DELETE | `/movies/{movie}` | 204 |
+| POST | `/movies/{movie}/watch` | body `{"user_id": 1}`; 201 first time, 200 if already watched |
+| GET | `/movies/{movie}/reviews` | 200, reviews for the movie |
+| POST | `/movies/{movie}/reviews` | body `{"user_id": 1, "rating": 5, "comment": "..."}`; 201 / 422 |
+| PATCH | `/reviews/{review}` | 200 / 422 |
+| DELETE | `/reviews/{review}` | 204 |
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Example movie in a response:
 
-## Security Vulnerabilities
+```json
+{
+  "data": {
+    "id": 13,
+    "title": "Titanic",
+    "genre": "Drama",
+    "release_year": 1997,
+    "nudity_level": "severe",
+    "violence_level": "moderate",
+    "language_level": "moderate",
+    "has_clean_edit": true,
+    "clean_edit_notes": "The drawing scene and the car scene are trimmed in the family edit.",
+    "is_family_clean": true,
+    "average_rating": 4,
+    "reviews_count": 1
+  }
+}
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Requirements
 
-## License
+- PHP 8.3 or newer with the `pdo_pgsql` and `pgsql` extensions turned on in `php.ini`.
+- Composer 2.
+- PostgreSQL (tested with version 18).
+- Postman (optional; the Swagger page can also send requests).
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Setup
+
+1. Install the packages and create `.env`:
+
+   ```sh
+   composer install
+   php -r "file_exists('.env') || copy('.env.example', '.env');"
+   php artisan key:generate
+   ```
+
+2. Open `.env` and put your PostgreSQL password in `DB_PASSWORD=`. The other database settings are already filled in:
+
+   ```
+   DB_CONNECTION=pgsql
+   DB_HOST=127.0.0.1
+   DB_PORT=5432
+   DB_DATABASE=movie_night
+   DB_USERNAME=postgres
+   ```
+
+3. Create the tables and the sample data. If the `movie_night` database does not exist yet, `migrate` offers to create it:
+
+   ```sh
+   php artisan migrate
+   php artisan db:seed
+   ```
+
+   The seeders add 3 users (`sara`, `karwan`, `lana`), 16 real movies and 8 reviews. Running `db:seed` again updates the same records instead of making duplicates.
+
+4. Start the server:
+
+   ```sh
+   php artisan serve
+   ```
+
+   Open **http://127.0.0.1:8000/api/hello**. You should see `{"message":"Hello World"}`.
+
+## API documentation (Swagger)
+
+With the server running, open **http://127.0.0.1:8000/docs/api**.
+
+Scramble reads the routes, the Form Request rules and the Resources, and builds the documentation from them. For example, `rating` shows as an integer from 1 to 5 because that is the rule in `StoreReviewRequest`. Use the **Try It** panel to send real requests from the browser.
+
+The docs page loads its viewer from the internet. When you are offline, use Postman instead.
+
+To save the OpenAPI file:
+
+```sh
+php artisan scramble:export
+```
+
+## Postman
+
+Import `postman/MovieNight.postman_collection.json` into Postman. It has a request for every endpoint, including examples that return 404 and 422. Change the `movie_id`, `user_id` and `review_id` variables on the collection to try other records.
+
+## Useful commands
+
+| Command | Purpose |
+| --- | --- |
+| `php artisan serve` | Start the server |
+| `php artisan route:list --path=api` | List all API routes |
+| `php artisan migrate:status` | Check which migrations ran |
+| `php artisan db:seed` | Add or refresh the sample data |
+| `php artisan migrate:fresh --seed` | Delete all tables and rebuild them with sample data |
+
+## Project structure
+
+```
+app/
+  Http/Controllers/  UserController, MovieController, WatchController, ReviewController
+  Http/Requests/     StoreUserRequest, StoreMovieRequest, UpdateMovieRequest,
+                     WatchMovieRequest, StoreReviewRequest, UpdateReviewRequest
+  Http/Resources/    UserResource, MovieResource, WatchResource, ReviewResource
+  Models/            User, Movie, Watch, Review
+database/
+  migrations/        users, movies, watches, reviews
+  seeders/           UserSeeder, MovieSeeder, ReviewSeeder
+routes/api.php
+postman/MovieNight.postman_collection.json
+```
+
+## Planned for the final project
+
+- Login with tokens (Laravel Sanctum) instead of sending `user_id` in the body.
+- Admin and user roles, with authorization policies.
+- Search, sorting and pagination.
+- Review rules: review only after watching, one review per movie.
+- Automated tests.

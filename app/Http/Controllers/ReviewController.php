@@ -10,6 +10,9 @@ use App\Models\Review;
 
 class ReviewController extends Controller
 {
+    /**
+     * List a movie's reviews.
+     */
     public function index(Movie $movie)
     {
         $reviews = $movie->reviews()
@@ -20,6 +23,9 @@ class ReviewController extends Controller
         return ReviewResource::collection($reviews);
     }
 
+    /**
+     * Review a movie.
+     */
     public function store(StoreReviewRequest $request, Movie $movie)
     {
         $review = $movie->reviews()->create($request->validated());
@@ -30,6 +36,11 @@ class ReviewController extends Controller
             ->setStatusCode(201);
     }
 
+    /**
+     * Update a review.
+     *
+     * Send only the rating or comment you want to change.
+     */
     public function update(UpdateReviewRequest $request, Review $review)
     {
         $review->update($request->validated());
@@ -38,6 +49,9 @@ class ReviewController extends Controller
         return new ReviewResource($review);
     }
 
+    /**
+     * Delete a review.
+     */
     public function destroy(Review $review)
     {
         $review->delete();

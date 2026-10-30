@@ -8,12 +8,19 @@ use App\Models\User;
 
 class UserController extends Controller
 {
+    /**
+     * List users.
+     */
     public function index()
     {
         return UserResource::collection(User::orderBy('id')->get());
     }
 
-    // Shows the user's profile with their watch history.
+    /**
+     * Show a user.
+     *
+     * Includes the user's watch history and how many reviews they wrote.
+     */
     public function show(User $user)
     {
         $user->load('watches.movie')->loadCount('reviews');
@@ -21,6 +28,9 @@ class UserController extends Controller
         return new UserResource($user);
     }
 
+    /**
+     * Create a user.
+     */
     public function store(StoreUserRequest $request)
     {
         $user = User::create($request->validated());

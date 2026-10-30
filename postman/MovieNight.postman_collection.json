@@ -1,0 +1,284 @@
+{
+  "info": {
+    "name": "Movie Night API (Midterm)",
+    "description": "Requests for the Movie Night REST API. Run `php artisan serve` first. Every request sends `Accept: application/json`.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://127.0.0.1:8000/api" },
+    { "key": "movie_id", "value": "1" },
+    { "key": "user_id", "value": "1" },
+    { "key": "review_id", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "Hello",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": "{{base_url}}/hello"
+      }
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "List users",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/users"
+          }
+        },
+        {
+          "name": "Show user (with watch history)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/users/{{user_id}}"
+          }
+        },
+        {
+          "name": "Create user",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"ahmad\",\n  \"email\": \"ahmad@example.com\",\n  \"password\": \"secret123\"\n}"
+            },
+            "url": "{{base_url}}/users"
+          }
+        },
+        {
+          "name": "Create user (invalid, 422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"sara\",\n  \"email\": \"not-an-email\",\n  \"password\": \"123\"\n}"
+            },
+            "url": "{{base_url}}/users"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Movies",
+      "item": [
+        {
+          "name": "List movies",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/movies"
+          }
+        },
+        {
+          "name": "List family-clean movies",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/movies?clean=true",
+              "host": ["{{base_url}}"],
+              "path": ["movies"],
+              "query": [{ "key": "clean", "value": "true" }]
+            }
+          }
+        },
+        {
+          "name": "List movies by genre",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/movies?genre=sci-fi",
+              "host": ["{{base_url}}"],
+              "path": ["movies"],
+              "query": [{ "key": "genre", "value": "sci-fi" }]
+            }
+          }
+        },
+        {
+          "name": "List family-clean movies by genre",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/movies?genre=drama&clean=true",
+              "host": ["{{base_url}}"],
+              "path": ["movies"],
+              "query": [
+                { "key": "genre", "value": "drama" },
+                { "key": "clean", "value": "true" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Show movie (with reviews)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/movies/{{movie_id}}"
+          }
+        },
+        {
+          "name": "Show movie (not found, 404)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/movies/9999"
+          }
+        },
+        {
+          "name": "Create movie",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Coco\",\n  \"genre\": \"Animation\",\n  \"release_year\": 2017,\n  \"nudity_level\": \"none\",\n  \"violence_level\": \"mild\",\n  \"language_level\": \"none\"\n}"
+            },
+            "url": "{{base_url}}/movies"
+          }
+        },
+        {
+          "name": "Create movie (invalid, 422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"\",\n  \"release_year\": 1500,\n  \"nudity_level\": \"extreme\"\n}"
+            },
+            "url": "{{base_url}}/movies"
+          }
+        },
+        {
+          "name": "Update movie (add a clean edit)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"has_clean_edit\": true,\n  \"clean_edit_notes\": \"Violent scenes are shortened in the family edit.\"\n}"
+            },
+            "url": "{{base_url}}/movies/{{movie_id}}"
+          }
+        },
+        {
+          "name": "Delete movie",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/movies/{{movie_id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Watching",
+      "item": [
+        {
+          "name": "Mark movie as watched",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": {{user_id}}\n}"
+            },
+            "url": "{{base_url}}/movies/{{movie_id}}/watch"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reviews",
+      "item": [
+        {
+          "name": "List a movie's reviews",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/movies/{{movie_id}}/reviews"
+          }
+        },
+        {
+          "name": "Review a movie",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": {{user_id}},\n  \"rating\": 5,\n  \"comment\": \"Great for movie night!\"\n}"
+            },
+            "url": "{{base_url}}/movies/{{movie_id}}/reviews"
+          }
+        },
+        {
+          "name": "Review a movie (invalid rating, 422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": {{user_id}},\n  \"rating\": 9\n}"
+            },
+            "url": "{{base_url}}/movies/{{movie_id}}/reviews"
+          }
+        },
+        {
+          "name": "Update review",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 3\n}"
+            },
+            "url": "{{base_url}}/reviews/{{review_id}}"
+          }
+        },
+        {
+          "name": "Delete review",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/reviews/{{review_id}}"
+          }
+        }
+      ]
+    }
+  ]
+}

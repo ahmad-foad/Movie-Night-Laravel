@@ -9,7 +9,11 @@ use App\Models\Watch;
 
 class WatchController extends Controller
 {
-    // POST /api/movies/{movie}/watch with {"user_id": 1}
+    /**
+     * Mark a movie as watched.
+     *
+     * Returns 201 the first time and 200 if the user already watched the movie.
+     */
     public function store(WatchMovieRequest $request, Movie $movie)
     {
         // If this user already watched this movie, return the existing record instead of a duplicate.
