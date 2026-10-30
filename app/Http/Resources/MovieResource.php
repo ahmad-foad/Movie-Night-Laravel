@@ -20,6 +20,9 @@ class MovieResource extends JsonResource
             'has_clean_edit' => $this->has_clean_edit,
             'clean_edit_notes' => $this->clean_edit_notes,
             'is_family_clean' => $this->isFamilyClean(),
+            'average_rating' => $this->whenHas('reviews_avg_rating', fn ($average) => $average === null ? null : round((float) $average, 1)),
+            'reviews_count' => $this->whenCounted('reviews'),
+            'reviews' => ReviewResource::collection($this->whenLoaded('reviews')),
         ];
     }
 }

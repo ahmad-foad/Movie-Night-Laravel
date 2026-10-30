@@ -14,6 +14,8 @@ class MovieController extends Controller
     public function index(Request $request)
     {
         $movies = Movie::query()
+            ->withAvg('reviews', 'rating')
+            ->withCount('reviews')
             ->when($request->filled('genre'), function ($query) use ($request) {
                 // ILIKE is PostgreSQL's case-insensitive match, so "animation" finds "Animation".
                 $query->where('genre', 'ilike', $request->input('genre'));
@@ -27,8 +29,15 @@ class MovieController extends Controller
         return MovieResource::collection($movies);
     }
 
+    // Shows one movie with its average rating and all of its reviews.
     public function show(Movie $movie)
     {
+        $movie->loadAvg('reviews', 'rating')
+            ->loadCount('reviews')
+            ->load(['reviews' => function ($query) {
+                $query->with('user')->latest();
+            }]);
+
         return new MovieResource($movie);
     }
 
@@ -45,6 +54,7 @@ class MovieController extends Controller
     public function update(UpdateMovieRequest $request, Movie $movie)
     {
         $movie->update($request->validated());
+        $movie->loadAvg('reviews', 'rating')->loadCount('reviews');
 
         return new MovieResource($movie);
     }

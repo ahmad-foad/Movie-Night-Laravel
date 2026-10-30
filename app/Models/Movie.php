@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
     'title',
@@ -31,6 +32,16 @@ class Movie extends Model
             'release_year' => 'integer',
             'has_clean_edit' => 'boolean',
         ];
+    }
+
+    public function watches(): HasMany
+    {
+        return $this->hasMany(Watch::class);
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
     }
 
     // A movie is family clean when all three flags are none or mild,
