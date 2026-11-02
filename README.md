@@ -90,7 +90,6 @@ Example movie in a response:
 - PHP 8.3 or newer with the `pdo_pgsql` and `pgsql` extensions turned on in `php.ini`.
 - Composer 2.
 - PostgreSQL (tested with version 18).
-- Postman (optional; the Swagger page can also send requests).
 
 ## Setup
 
@@ -135,17 +134,13 @@ With the server running, open **http://127.0.0.1:8000/docs/api**.
 
 Scramble reads the routes, the Form Request rules and the Resources, and builds the documentation from them. For example, `rating` shows as an integer from 1 to 5 because that is the rule in `StoreReviewRequest`. Use the **Try It** panel to send real requests from the browser.
 
-The docs page loads its viewer from the internet. When you are offline, use Postman instead.
+The docs page loads its viewer from the internet, so it needs a connection.
 
 To save the OpenAPI file:
 
 ```sh
 php artisan scramble:export
 ```
-
-## Postman
-
-Import `postman/MovieNight.postman_collection.json` into Postman. It has a request for every endpoint, including examples that return 404 and 422. Change the `movie_id`, `user_id` and `review_id` variables on the collection to try other records.
 
 ## Useful commands
 
@@ -170,7 +165,6 @@ database/
   migrations/        users, movies, watches, reviews
   seeders/           UserSeeder, MovieSeeder, ReviewSeeder
 routes/api.php
-postman/MovieNight.postman_collection.json
 ```
 
 ## Planned for the final project
