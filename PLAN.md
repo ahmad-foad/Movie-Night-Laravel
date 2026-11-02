@@ -27,7 +27,7 @@ Only what the Movie Night idea needs to work:
 4. **The "family clean" rule**: each movie gets an `is_family_clean` field. A movie is family clean when every flag is `none` or `mild`, or when a clean edit is available. The Java version only checked nudity; this one checks all three flags.
 5. **Average rating and review count** on each movie, like the Java version.
 6. **Swagger docs with Scramble** (`dedoc/scramble`) at `/docs/api`. Scramble builds the docs automatically from the routes, Form Requests and Resources, so no extra code goes into the controllers. The teacher can try every endpoint from the browser. (The docs page needs internet to load.)
-7. **Postman collection** (importable JSON) as a backup for offline use, and a **README** with setup steps and an endpoint table.
+7. **README** with setup steps and an endpoint table.
 
 ## 3. Saved for the final project
 
@@ -104,7 +104,6 @@ database/
   migrations/       users, movies, watches, reviews
   seeders/          UserSeeder (3 demo users), MovieSeeder (~15 real movies), ReviewSeeder
 routes/api.php
-postman/MovieNight.postman_collection.json
 README.md
 ```
 
@@ -117,7 +116,7 @@ I'll build in phases, with one git commit per phase so the history reads like th
 3. **Filters**: `?genre=` and `?clean=true`, plus the `is_family_clean` field.
 4. **Users**: migration, seeder, create, list and show.
 5. **Watching and reviews**: migrations, relationships, endpoints, average rating on movies.
-6. **Docs**: Scramble (Swagger) docs, Postman collection and README.
+6. **Docs**: Scramble (Swagger) docs and README.
 7. **Verification**: hit every endpoint against the real Postgres database and check the status codes.
 
 ## 8. What you need to do before I start
